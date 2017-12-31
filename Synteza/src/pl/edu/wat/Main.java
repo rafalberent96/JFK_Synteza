@@ -1,6 +1,7 @@
 package pl.edu.wat;
 
 import com.github.javaparser.JavaParser;
+import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.MethodDeclaration;
@@ -21,6 +22,10 @@ import java.util.*;
 public class Main {
 
     public static void main(String[] args) throws IOException {
+
+        ParserConfiguration pconfig = new ParserConfiguration();
+        pconfig.setAttributeComments(false);
+        JavaParser.setStaticConfiguration(pconfig);
         final String fileName = "src\\Class.java";
         final String alteredFileName = "src\\ClassAltered.java";
         CompilationUnit cu;
@@ -59,10 +64,11 @@ public class Main {
         int a=0;
         Optional<BlockStmt> body = method.getBody();
         String stat = body.toString();
-        if(!stat.contains("return"))
+        if(!stat.contains("return")|| !body.isPresent())
         {
             a=1;
         }
+
         return a;
     }
     private static BlockStmt GetMethodStmt(MethodDeclaration method){
@@ -84,8 +90,10 @@ public class Main {
                 return;
             }
             BlockStmt block = GetMethodStmt(n);
-            NameExpr call = new NameExpr("throw new NotImplementedException"+"(\""+(methodName)+"\")");
-            block.addStatement(call);
+            NameExpr f = new NameExpr("throw new java");
+            FieldAccessExpr f2= new FieldAccessExpr(f,"lang");
+            FieldAccessExpr f3= new FieldAccessExpr(f2, "UnsupportedOperationException(\""+methodName+"\")");
+            block.addStatement(f3);
         }
     }
 }
